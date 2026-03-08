@@ -38,10 +38,10 @@ export default defineAgent({
 
   // Define Function Context for tools using LiveKit 1.0 Syntax
   const fnCtx: llm.ToolContext = {
-    transfer_to_agent: llm.tool({
-      description: 'Use this tool EXACTLY when the user asks a question that is NOT in your knowledge base. It will end the AI session and transfer the user to a human.',
+    transfer_call: llm.tool({
+      description: 'Call this function to transfer the user to a human agent.',
       execute: async () => {
-        logger.info('Deflection triggered: transfer_to_agent called');
+        logger.info('Deflection triggered: transfer_call called');
         await db.incrementCallsDeflected();
         
         // Tell the frontend we are transferring
@@ -51,12 +51,12 @@ export default defineAgent({
           await ctx.room.localParticipant.publishData(payload, { reliable: true });
         }
 
-        // Optionally say something before disconnecting, or just disconnect
+        // Delay disconnection to allow the agent to finish its sentence
         setTimeout(() => {
           ctx.room.disconnect();
-        }, 3000); // give the agent time to say goodbye
+        }, 3000);
         
-        return 'Transfer initiated. Please say a quick goodbye to the user and stop speaking.';
+        return 'The transfer has been initiated. Please say a final goodbye and end your response.';
       }
     })
   };
