@@ -17,7 +17,12 @@ export async function buildApp(context: ApplicationContext) {
   });
 
   // Register essential plugins
-  await app.register(cors, { origin: '*' });
+  await app.register(cors, { 
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'Accept'],
+    credentials: true,
+  });
   // --- Global Hooks for Request/Response Logging & Tracing ---
 
   // Generate a unique reqId or use the one provided by Twilio/proxies
