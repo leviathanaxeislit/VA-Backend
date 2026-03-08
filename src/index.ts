@@ -66,6 +66,13 @@ async function startServer() {
 
     // Start LiveKit Worker Programmatically in the background
     logger.info('Spawning LiveKit agent worker process natively...');
+
+    // Inject 'start' into process.argv so the LiveKit CLI knows to run in production mode
+    // rather than printing the help menu and crashing Fastify.
+    if (!process.argv.includes('start') && !process.argv.includes('dev')) {
+      process.argv.push('start');
+    }
+
     cli.runApp(new WorkerOptions({
       agent: path.join(__dirname, 'agent.js'),
     }));
