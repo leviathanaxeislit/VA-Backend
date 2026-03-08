@@ -1,8 +1,10 @@
+import { cli, WorkerOptions } from '@livekit/agents';
 import { createLogger } from './utils/logger';
 import { ConfigService } from './infrastructure/config.service';
 import { DatabaseService } from './infrastructure/database/database.service';
 import { ApplicationContext } from './interfaces/application.context';
 import { buildApp } from './app';
+import * as path from 'path';
 
 /**
  * Application Entry Point.
@@ -60,7 +62,14 @@ async function startServer() {
     await app.listen({ port, host });
     
     // Fallback message, actual startup log is handled by app.listen() but this is explicit
-    logger.info(`🚀 Agent Server is fully operational and listening on http://${host}:${port}`);
+    logger.info(`🚀 Fastify API Server is fully operational and listening on http://${host}:${port}`);
+
+    // Start LiveKit Worker Programmatically in the background
+    logger.info('Spawning LiveKit agent worker process natively...');
+    cli.runApp(new WorkerOptions({
+      agent: path.join(__dirname, 'agent.js'),
+    }));
+    logger.info('LiveKit Voice Agent successfully attached to the API process.');
 
   } catch (error) {
     bootstrapLogger.fatal({ err: error }, 'Fatal error during application startup. Process terminating.');

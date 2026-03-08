@@ -117,6 +117,9 @@ exports.default = (0, agents_1.defineAgent)({
         });
     }
 });
-agents_1.cli.runApp(new agents_1.WorkerOptions({
-    agent: __filename,
-}));
+// Run via CLI if executed directly (e.g. `tsx watch src/agent.ts dev`)
+if (require.main === module) {
+    agents_1.cli.runApp(new agents_1.WorkerOptions({
+        agent: __filename,
+    }));
+}

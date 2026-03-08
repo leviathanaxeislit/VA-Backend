@@ -20,7 +20,12 @@ async function buildApp(context) {
         disableRequestLogging: true, // We will handle request logging via custom hooks for better control
     });
     // Register essential plugins
-    await app.register(cors_1.default, { origin: '*' });
+    await app.register(cors_1.default, {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'Accept'],
+        credentials: true,
+    });
     // --- Global Hooks for Request/Response Logging & Tracing ---
     // Generate a unique reqId or use the one provided by Twilio/proxies
     app.addHook('onRequest', async (req) => {

@@ -102,6 +102,10 @@ export default defineAgent({
 }
 });
 
-cli.runApp(new WorkerOptions({
-  agent: __filename,
-}));
+
+// Run via CLI if executed directly (e.g. `tsx watch src/agent.ts dev`)
+if (require.main === module) {
+  cli.runApp(new WorkerOptions({
+    agent: __filename,
+  }));
+}
