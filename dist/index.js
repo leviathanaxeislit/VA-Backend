@@ -88,17 +88,22 @@ async function startServer() {
         await app.listen({ port, host });
         // Fallback message, actual startup log is handled by app.listen() but this is explicit
         logger.info(`🚀 Fastify API Server is fully operational and listening on http://${host}:${port}`);
-        // Start LiveKit Worker Programmatically in the background
-        logger.info('Spawning LiveKit agent worker process natively...');
-        // Inject 'start' into process.argv so the LiveKit CLI knows to run in production mode
-        // rather than printing the help menu and crashing Fastify.
-        if (!process.argv.includes('start') && !process.argv.includes('dev')) {
-            process.argv.push('start');
+        // Start LiveKit Worker Programmatically in the background for production
+        if (currentEnv === 'production') {
+            logger.info('Spawning LiveKit agent worker process natively...');
+            // Inject 'start' into process.argv so the LiveKit CLI knows to run in production mode
+            // rather than printing the help menu and crashing Fastify.
+            if (!process.argv.includes('start') && !process.argv.includes('dev')) {
+                process.argv.push('start');
+            }
+            agents_1.cli.runApp(new agents_1.WorkerOptions({
+                agent: path.join(__dirname, 'agent.js'),
+            }));
+            logger.info('LiveKit Voice Agent successfully attached to the API process.');
         }
-        agents_1.cli.runApp(new agents_1.WorkerOptions({
-            agent: path.join(__dirname, 'agent.js'),
-        }));
-        logger.info('LiveKit Voice Agent successfully attached to the API process.');
+        else {
+            logger.info(`Running in [${currentEnv}] mode; skipping embedded LiveKit Voice Agent worker (managed via concurrently).`);
+        }
     }
     catch (error) {
         bootstrapLogger.fatal({ err: error }, 'Fatal error during application startup. Process terminating.');

@@ -58,6 +58,26 @@ export default defineAgent({
         
         return 'The transfer has been initiated. Please say a final goodbye and end your response.';
       }
+    }),
+    end_call: llm.tool({
+      description: 'Call this function to end/disconnect the call when the user is idle, unresponsive, or the conversation is over.',
+      execute: async () => {
+        logger.info('Call ended by agent: end_call called due to idle or end of conversation');
+        
+        // Tell the frontend we are ending the call
+        const encoder = new TextEncoder();
+        const payload = encoder.encode(JSON.stringify({ type: 'disconnect' }));
+        if (ctx.room.localParticipant) {
+          await ctx.room.localParticipant.publishData(payload, { reliable: true });
+        }
+
+        // Delay disconnection to allow the agent to finish its sentence
+        setTimeout(() => {
+          ctx.room.disconnect();
+        }, 3000);
+        
+        return 'The call is being disconnected. Please say a final goodbye and end your response.';
+      }
     })
   };
 
